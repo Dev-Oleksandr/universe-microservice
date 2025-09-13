@@ -6,6 +6,8 @@
 /psql
 /volume
 
+/services/*/node_modules
+
 # Logs
 logs
 *.log
