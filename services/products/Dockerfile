@@ -10,4 +10,5 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+CMD ["npm", "run", "migrate:up"]
 CMD ["node", "dist/main.js"]
