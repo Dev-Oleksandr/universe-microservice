@@ -2,13 +2,16 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   ParseIntPipe,
   Post,
   Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service.js';
 import { CreateProductDto } from './schemas/create-product.dto.js';
+import {
+  DEFAULT_PAGINATION_LIMIT,
+  DEFAULT_PAGINATION_OFFSET,
+} from '../database/constants.js';
 
 @Controller('products')
 export class ProductsController {
@@ -21,8 +24,10 @@ export class ProductsController {
 
   @Get()
   findPaginatedProducts(
-    @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
-    @Query('offset', new ParseIntPipe({ optional: true })) offset?: number,
+    @Query('limit', new ParseIntPipe({ optional: true }))
+    limit = DEFAULT_PAGINATION_LIMIT,
+    @Query('offset', new ParseIntPipe({ optional: true }))
+    offset = DEFAULT_PAGINATION_OFFSET,
   ) {
     return this.productsService.findPaginatedProducts({ limit, offset });
   }
