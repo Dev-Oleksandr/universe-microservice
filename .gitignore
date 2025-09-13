@@ -3,6 +3,9 @@
 /node_modules
 /build
 
+/psql
+/volume
+
 # Logs
 logs
 *.log
