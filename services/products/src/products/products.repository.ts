@@ -24,4 +24,21 @@ export class ProductsRepository {
 
     return requestResult.rows;
   }
+
+  async paginatedFindAndCountAll(pagination: {
+    limit?: number;
+    offset?: number;
+  }) {
+    const { query: selectSql, values } =
+      this.databaseMapper.buildSelectAllPaginated('products', pagination);
+
+    const { query: totalRowsQuery } =
+      this.databaseMapper.buildCountAll('products');
+    const [resultProducts] = await Promise.all([
+      this.pool.query(selectSql, values),
+      this.pool.query(totalRowsQuery),
+    ]);
+
+    return resultProducts.rows;
+  }
 }

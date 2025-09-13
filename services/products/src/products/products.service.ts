@@ -8,4 +8,8 @@ export class ProductsService {
   createProduct(dto: CreateProductDto) {
     return this.productsRepository.create(dto, { returning: '*' });
   }
+
+  findPaginatedProducts(pagination: { limit?: number; offset?: number }) {
+    return this.productsRepository.paginatedFindAndCountAll(pagination);
+  }
 }
