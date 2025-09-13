@@ -6,6 +6,8 @@
 /psql
 /volume
 
+/localstack
+
 /services/*/node_modules
 
 # Logs
