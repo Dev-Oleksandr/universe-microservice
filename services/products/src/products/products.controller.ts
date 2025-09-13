@@ -12,6 +12,7 @@ import {
   DEFAULT_PAGINATION_LIMIT,
   DEFAULT_PAGINATION_OFFSET,
 } from '../database/constants.js';
+import { DataListResponseMapper } from '../common/data-list-response.mapper.js';
 
 @Controller('products')
 export class ProductsController {
@@ -23,12 +24,17 @@ export class ProductsController {
   }
 
   @Get()
-  findPaginatedProducts(
+  async findPaginatedProducts(
     @Query('limit', new ParseIntPipe({ optional: true }))
     limit = DEFAULT_PAGINATION_LIMIT,
     @Query('offset', new ParseIntPipe({ optional: true }))
     offset = DEFAULT_PAGINATION_OFFSET,
   ) {
-    return this.productsService.findPaginatedProducts({ limit, offset });
+    const { rows, total } = await this.productsService.findPaginatedProducts({
+      limit,
+      offset,
+    });
+
+    return new DataListResponseMapper(limit, offset).toResult(rows, total);
   }
 }

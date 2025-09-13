@@ -34,11 +34,14 @@ export class ProductsRepository {
 
     const { query: totalRowsQuery } =
       this.databaseMapper.buildCountAll('products');
-    const [resultProducts] = await Promise.all([
+    const [resultProducts, resultTotal] = await Promise.all([
       this.pool.query(selectSql, values),
       this.pool.query(totalRowsQuery),
     ]);
 
-    return resultProducts.rows;
+    return {
+      rows: resultProducts.rows,
+      total: Number(resultTotal.rows.at(0)?.total) ?? 0,
+    };
   }
 }
