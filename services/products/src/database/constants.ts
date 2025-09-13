@@ -1,0 +1,6 @@
+export const DEFAULT_PAGINATION_LIMIT = 20;
+export const MIN_PAGINATION_LIMIT = 1;
+export const MAX_PAGINATION_LIMIT = 100;
+
+export const DEFAULT_PAGINATION_OFFSET = 0;
+export const MIN_PAGINATION_OFFSET = 0;

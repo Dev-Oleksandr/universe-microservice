@@ -1,5 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { Row } from './types.js';
+import { OrderItem, Row } from './types.js';
+import {
+  DEFAULT_PAGINATION_LIMIT,
+  DEFAULT_PAGINATION_OFFSET,
+  MAX_PAGINATION_LIMIT,
+  MIN_PAGINATION_LIMIT,
+  MIN_PAGINATION_OFFSET,
+} from './constants.js';
 
 @Injectable()
 export class DatabaseMapper {
@@ -39,6 +46,39 @@ export class DatabaseMapper {
     return { query, values, columns };
   }
 
+  buildSelectAllPaginated(
+    table: string,
+    opts: {
+      schema?: string;
+      limit?: number;
+      offset?: number;
+      orderBy?: OrderItem[];
+    } = {},
+  ): { query: string; values: any[] } {
+    const tableSQL = this.tableSQL(table, opts.schema);
+
+    const limit = this.getValidatedLimit(opts.limit);
+    const offset = this.getValidatedOffset(opts.offset);
+
+    let orderSQL = '';
+    if (opts.orderBy?.length) {
+      const parts = opts.orderBy.map((order) => {
+        const direction = order.direction ?? 'ASC';
+        const nulls = order.nulls ? ` NULLS ${order.nulls}` : '';
+        return `${this.sanitizeText(order.column)} ${direction}${nulls}`;
+      });
+      orderSQL = ` ORDER BY ${parts.join(', ')}`;
+    }
+
+    const query = `SELECT * FROM ${tableSQL}${orderSQL} LIMIT ${limit} OFFSET ${offset};`;
+    return { query, values: [] };
+  }
+
+  buildCountAll(table: string, schema?: string) {
+    const tableSQL = this.tableSQL(table, schema);
+    return { query: `SELECT COUNT(*) AS total FROM ${tableSQL};` };
+  }
+
   private unionColumns(rows: Row[]): string[] {
     const seen = new Set<string>();
     const columns: string[] = [];
@@ -61,5 +101,21 @@ export class DatabaseMapper {
     return schema
       ? `${this.sanitizeText(schema)}.${this.sanitizeText(table)}`
       : this.sanitizeText(table);
+  }
+
+  private getValidatedLimit(limit?: number): number {
+    if (!limit) return DEFAULT_PAGINATION_LIMIT;
+
+    if (limit <= MIN_PAGINATION_LIMIT) return MIN_PAGINATION_LIMIT;
+    if (limit > MAX_PAGINATION_LIMIT) return MAX_PAGINATION_LIMIT;
+
+    return limit;
+  }
+
+  private getValidatedOffset(offset?: number): number {
+    if (!offset) return DEFAULT_PAGINATION_OFFSET;
+    if (offset <= MIN_PAGINATION_OFFSET) return MIN_PAGINATION_OFFSET;
+
+    return offset;
   }
 }
