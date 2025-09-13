@@ -3,6 +3,7 @@ import { DatabaseMapper } from '../database/database.mapper.js';
 import { Row } from '../database/types.js';
 import { PG_POOL } from '../database/database.module.js';
 import { Pool } from 'pg';
+import { Primitive } from 'zod';
 
 @Injectable()
 export class ProductsRepository {
@@ -43,5 +44,14 @@ export class ProductsRepository {
       rows: resultProducts.rows,
       total: Number(resultTotal.rows.at(0)?.total) ?? 0,
     };
+  }
+
+  async deleteOne(id: Primitive) {
+    const { query, values } = this.databaseMapper.buildDeleteById(
+      'products',
+      id,
+    );
+
+    await this.pool.query(query, values);
   }
 }

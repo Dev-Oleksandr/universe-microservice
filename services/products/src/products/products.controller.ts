@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   ParseIntPipe,
   Post,
   Query,
@@ -36,5 +38,12 @@ export class ProductsController {
     });
 
     return new DataListResponseMapper(limit, offset).toResult(rows, total);
+  }
+
+  @Delete(':productId')
+  async deleteProduct(@Param('productId', ParseIntPipe) productId: number) {
+    await this.productsService.deleteProduct(productId);
+
+    return { message: 'ok' };
   }
 }

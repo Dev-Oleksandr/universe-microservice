@@ -7,6 +7,7 @@ import {
   MIN_PAGINATION_LIMIT,
   MIN_PAGINATION_OFFSET,
 } from './constants.js';
+import { Primitive } from 'zod';
 
 @Injectable()
 export class DatabaseMapper {
@@ -35,12 +36,7 @@ export class DatabaseMapper {
     const columnsSql = columns.map((item) => this.sanitizeText(item)).join(',');
     const tableSQL = this.tableSQL(table, opts?.schema);
     const shouldReturnAllColumns = opts?.returning === '*';
-    let returnString = '';
-    if (shouldReturnAllColumns) {
-      returnString = ' RETURNING *';
-    } else if (Array.isArray(opts?.returning) && opts.returning.length) {
-      returnString = ` RETURNING ${opts.returning.map((item) => this.sanitizeText(item)).join(',')}`;
-    }
+    const returnString = this.buildReturning(opts?.returning);
 
     const query = `INSERT INTO ${tableSQL} (${columnsSql}) VALUES ${tuples.join(',')}${returnString};`;
     return { query, values, columns };
@@ -93,6 +89,18 @@ export class DatabaseMapper {
     return columns;
   }
 
+  buildDeleteById(
+    table: string,
+    id: Primitive,
+    opts?: { schema?: string; idColumn?: string; returning?: '*' | string[] },
+  ) {
+    const tableSQL = this.tableSQL(table, opts?.schema);
+    const column = this.sanitizeText(opts?.idColumn ?? 'id');
+    const returning = this.buildReturning(opts?.returning);
+    const query = `DELETE FROM ${tableSQL} WHERE ${column} = $1${returning};`;
+    return { query, values: [id] };
+  }
+
   private sanitizeText(text: string): string {
     return text.replace(/([%\\_])/g, '\\$1');
   }
@@ -117,5 +125,17 @@ export class DatabaseMapper {
     if (offset <= MIN_PAGINATION_OFFSET) return MIN_PAGINATION_OFFSET;
 
     return offset;
+  }
+
+  private buildReturning(returning?: string | string[]): string {
+    const shouldReturnAllColumns = returning === '*';
+    let returnString = '';
+    if (shouldReturnAllColumns) {
+      returnString = ' RETURNING *';
+    } else if (Array.isArray(returning) && returning.length) {
+      returnString = ` RETURNING ${returning.map((item) => this.sanitizeText(item)).join(',')}`;
+    }
+
+    return returnString;
   }
 }

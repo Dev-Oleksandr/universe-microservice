@@ -12,4 +12,8 @@ export class ProductsService {
   findPaginatedProducts(pagination: { limit?: number; offset?: number }) {
     return this.productsRepository.paginatedFindAndCountAll(pagination);
   }
+
+  deleteProduct(productId: number) {
+    return this.productsRepository.deleteOne(productId);
+  }
 }
