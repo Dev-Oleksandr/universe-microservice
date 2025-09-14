@@ -9,7 +9,7 @@ services:
       - '9229:9229'
     depends_on:
       psql:
-        condition: service_started
+        condition: service_healthy
       prometheus:
         condition: service_healthy
       localstack:
@@ -26,17 +26,22 @@ services:
       localstack:
         condition: service_healthy
       psql:
-        condition: service_started
+        condition: service_healthy
 
   psql:
     container_name: psql
     image: postgres:16
     environment:
       DATABASE_URL: $DATABASE_URL
+      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
     ports:
       - "$BIND_POSTGRES_PORT:5432"
     volumes:
       - ./psql:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h localhost || exit 1"]
 
   prometheus:
     container_name: prometheus
