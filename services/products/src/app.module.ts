@@ -4,9 +4,10 @@ import { ProductsModule } from './products/products.module.js';
 import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from '@anatine/zod-nestjs';
 import { MetricsModule } from './metrics/metrics.module.js';
+import { AwsSqsModule } from './common/aws-sqs/aws-sqs.module.js';
 
 @Module({
-  imports: [ProductsModule, DatabaseModule, MetricsModule],
+  imports: [ProductsModule, DatabaseModule, MetricsModule, AwsSqsModule],
   controllers: [],
   providers: [
     {

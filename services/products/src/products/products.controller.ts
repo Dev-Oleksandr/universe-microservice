@@ -16,17 +16,20 @@ import {
 } from '../database/constants.js';
 import { DataListResponseMapper } from '../common/data-list-response.mapper.js';
 import { MetricsService } from '../metrics/metrics.service.js';
+import { AwsSqsService } from '../common/aws-sqs/aws-sqs.service.js';
 
 @Controller('products')
 export class ProductsController {
   constructor(
     private readonly productsService: ProductsService,
     private readonly metricsService: MetricsService,
+    private readonly awsSqsService: AwsSqsService,
   ) {}
 
   @Post()
-  createProduct(@Body() dto: CreateProductDto) {
+  async createProduct(@Body() dto: CreateProductDto) {
     this.metricsService.increment({ action: 'create', entity: 'products' });
+    await this.awsSqsService.onCreateProduct(dto);
     return this.productsService.createProduct(dto);
   }
 
