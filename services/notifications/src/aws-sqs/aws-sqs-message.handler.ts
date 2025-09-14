@@ -38,8 +38,6 @@ export class AwsSqsMessageHandler {
 
       this.logger.log(`Event type - ${type}`);
       this.logger.log(`data - ${JSON.stringify(data)}`);
-
-      // logger prometheus
     } catch (e) {
       this.logger.error('Invalid message', e);
       throw e;
