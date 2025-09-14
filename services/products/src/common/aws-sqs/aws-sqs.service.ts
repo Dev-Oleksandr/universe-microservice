@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { CreateProductDto } from '../../products/schemas/create-product.dto.js';
+import { SQS_CLIENT } from './constants.js';
 
 @Injectable()
 export class AwsSqsService {
-  constructor(@Inject('SQS_CLIENT') private readonly sqsClient: SQSClient) {}
+  constructor(@Inject(SQS_CLIENT) private readonly sqsClient: SQSClient) {}
 
   async onCreateProduct(dto: CreateProductDto) {
     const message = JSON.stringify({

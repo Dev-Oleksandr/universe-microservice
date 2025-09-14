@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { collectDefaultMetrics, Counter, Registry } from 'prom-client';
 import { MetricsService } from './metrics.service.js';
 import { MetricsController } from './metrics.controller.js';
+import { OPS_COUNTER, PROM_REGISTRY } from './constants.js';
 
 @Global()
 @Module({
@@ -9,7 +10,7 @@ import { MetricsController } from './metrics.controller.js';
   providers: [
     MetricsService,
     {
-      provide: 'PROM_REGISTRY',
+      provide: PROM_REGISTRY,
       useFactory: () => {
         const register = new Registry();
         collectDefaultMetrics({ register });
@@ -17,8 +18,8 @@ import { MetricsController } from './metrics.controller.js';
       },
     },
     {
-      provide: 'OPS_COUNTER',
-      inject: ['PROM_REGISTRY'],
+      provide: OPS_COUNTER,
+      inject: [PROM_REGISTRY],
       useFactory: (register: Registry) => {
         const counter = new Counter({
           name: 'operation_count',
