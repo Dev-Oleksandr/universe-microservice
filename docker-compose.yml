@@ -8,7 +8,12 @@ services:
       - '$BIND_PRODUCT_SERVICE_PORT:3000'
       - '9229:9229'
     depends_on:
-      - psql
+      psql:
+        condition: service_started
+      prometheus:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
 
   notifications:
     build: ./services/notifications
@@ -18,8 +23,6 @@ services:
     ports:
       - '$BIND_NOTIFICATION_SERVICE_PORT:3001'
     depends_on:
-      prometheus:
-        condition: service_healthy
       localstack:
         condition: service_healthy
       psql:
@@ -45,7 +48,6 @@ services:
     healthcheck:
       test: ["CMD", "wget", "--spider", "http://localhost:9090/-/healthy"]
 
-
   localstack:
     container_name: localstack
     image: localstack/localstack:latest
@@ -58,11 +60,11 @@ services:
       - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
     volumes:
-      - "./init-localstack.sh:/etc/localstack/init/ready.d/init-localstack.sh"
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "./localstack/init:/etc/localstack/init:Z"
       - "/var/run/docker.sock:/var/run/docker.sock"
     healthcheck:
-      test: ["CMD-SHELL", "sh -lc 'awslocal sqs list-queues >/dev/null 2>&1 || exit 1'"]
+      test: ["CMD-SHELL", "awslocal sqs list-queues >/dev/null 2>&1 || exit 1"]
       interval: 5s
       timeout: 3s
       retries: 5
