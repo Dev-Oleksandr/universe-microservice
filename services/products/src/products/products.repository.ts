@@ -30,13 +30,15 @@ export class ProductsRepository {
     limit?: number;
     offset?: number;
   }) {
-    const { query: selectSql, values } =
-      this.databaseMapper.buildSelectAllPaginated('products', pagination);
+    const { query: selectSql } = this.databaseMapper.buildSelectAllPaginated(
+      'products',
+      pagination,
+    );
 
     const { query: totalRowsQuery } =
       this.databaseMapper.buildCountAll('products');
     const [resultProducts, resultTotal] = await Promise.all([
-      this.pool.query(selectSql, values),
+      this.pool.query(selectSql),
       this.pool.query(totalRowsQuery),
     ]);
 
