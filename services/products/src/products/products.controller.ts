@@ -52,7 +52,7 @@ export class ProductsController {
   async deleteProduct(@Param('productId', ParseIntPipe) productId: number) {
     this.metricsService.increment({ action: 'delete', entity: 'products' });
     await this.productsService.deleteProduct(productId);
-
+    await this.awsSqsService.onDeleteProduct({ productId });
     return { message: 'ok' };
   }
 }

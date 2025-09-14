@@ -17,4 +17,16 @@ export class AwsSqsService {
     });
     await this.sqsClient.send(command);
   }
+
+  async onDeleteProduct(dto: { productId: number }) {
+    const message = JSON.stringify({
+      type: 'product.deleted',
+      data: dto,
+    });
+    const command = new SendMessageCommand({
+      MessageBody: message,
+      QueueUrl: process.env.AWS_SQS_URL,
+    });
+    await this.sqsClient.send(command);
+  }
 }
