@@ -23,7 +23,7 @@ export class ProductsRepository {
     );
     const requestResult = await this.pool.query(query, values);
 
-    return requestResult.rows;
+    return requestResult.rows.at(0)!;
   }
 
   async paginatedFindAndCountAll(pagination: {
