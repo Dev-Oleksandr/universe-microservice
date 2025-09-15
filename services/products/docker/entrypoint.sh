@@ -1,8 +1,7 @@
 #!/usr/bin/env sh
 set -e
 
-# Ждём Postgres (если заданы переменные подключения)
-if [ -n "$PGHOST" ]; then
+if [ -n "$BIND_POSTGRES_HOST" ]; then
   until pg_isready -h "$BIND_POSTGRES_HOST" -p "${$BIND_POSTGRES_PORT:-5432}" -U "${PGUSER:-postgres}"; do
     echo "Waiting for Postgres at $BIND_POSTGRES_HOST:${$BIND_POSTGRES_PORT:-5432}..."
     sleep 1
