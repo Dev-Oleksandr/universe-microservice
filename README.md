@@ -43,7 +43,8 @@ docker-compose up -d --build
 
 ```bash
 # unit tests
-$ npm run test
+$ cd services/products
+$ npm i && npm run test
 ```
 
 ## APIs
